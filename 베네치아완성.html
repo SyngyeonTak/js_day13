@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>베네치아 타자게임</title>
+    <style>
+        .wrapper{
+            width: 1200px;
+            height: 700px;
+            background: yellow;
+            margin: auto;
+            overflow: hidden;  
+        }
+
+        .dash{
+            width: 200px;
+            height: 100%;
+            position:relative;
+            background: gold;
+            font-size: 10px;
+            text-align: center;
+            float: left;
+        }
+
+        .dash button, select, input{
+            width: 90%;
+            height: 40px;
+            margin-bottom: 4px;
+            font-size: 24px;
+        }
+
+        #hpBox{
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+            margin-top: 50px;
+            padding:3px;
+            box-sizing: border-box;
+        }
+
+        #stage{
+            width: 1000px;
+            height: 100%;
+            background: dodgerblue;
+            float: left;
+            position: relative;/*자식 때문에*/
+        }
+
+       #scoreBox{
+           width: 100%;
+           height: 100px;
+           font-size: 50px;
+           font-weight: bold;
+           text-align: center;
+       }
+
+        #stage{
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+    </style>
+    <script src = "../js/lib.js"></script>
+    <script>
+        /*타자게임에 등장할 모든 단어 데이터베이스 2차원 배열인 이유
+            stage가 여러판이기 때문에
+        */ 
+        var word = [
+            ["농구", "축구", "야구", "배구", "탁구", "배드민턴", "핸드볼", "테니스", "비치발리볼", "소프트볼", "컬링", "하키"],
+            ["파전", "족발", "보쌈", "치킨", "짜장면", "짬뽕", "피자", "곱창", "막창", "갈비", "한우", "순댓국"],
+            ["시몬스", "하든", "커리", "어빙", "르브론", "갈매기", "쿰보", "레너드", "폴조지", "요키치", "머레이", "미첼"],
+            ["리눅스", "자바", "C언어", "C#", "C++", "파이썬", "PHP", "자바스크립트", "리엑트", "스프링", "노드", "루비"],
+            ["귤","가평","태권도","연습장","3호선","감자","토성","메모리","호주","흑해"]
+        ];
+
+        var arr = new Array();
+        var lifeArr = new Array();
+        var stage;
+        var level = 0; //게이머의 현재 레벨을 표현하는 변수, 우리 게임은 5레벨까지 있다.(0~4레벨까지...)
+        //화면에 등장할 단어를 감쌀 태그 생성
+        var txt;
+        var dash;
+        var flag = false;
+        var sel;
+
+        var hpBox;
+        var scoreBox;
+        var itemBox;
+
+        var hpArray = new Array();
+        var hpNum = 9;
+        var score = 0;
+        var stepY =20;
+        function hpTaken(){
+            
+        }
+
+        function printScore(){
+            scoreBox.innerHTML = score+" 점";
+        }
+
+        function startGame(){
+            flag = !flag;
+        }
+
+        function move(){
+            if(flag){
+                var len = arr.length
+                for(var i=0; i<len; i++){
+                    arr[i].style.top = parseInt(arr[i].style.top)+stepY+"px";
+                    if(parseInt(arr[i].style.top) >=700){
+                        arr.splice(0, 1);
+
+                    }
+                }
+            }
+        }
+
+        function createWord(){
+            //해당 stage에 등장할 단어만큼 생성
+
+            for(var i = 0; i<word[level].length; i++){
+                var span = document.createElement("span"); //inline이므로 너비, 높이를 가질수 없다
+                                                                                //내부의 컨텐츠만큼만 감싼다.(wrapping);
+                span.innerHTML = word[level][i];
+                span.style.position = "absolute";
+                span.style.left = 85*i+"px";
+                span.style.top = getRandomBetween(-200, 0)+"px";
+                stage.appendChild(span);
+                arr.push(span);
+            }
+        }
+
+        //레벨을 선택할 옵션을 동적으로 생성
+        function createLevelOption(){
+
+            for(var i=0; i<word.length; i++){
+                var op = document.createElement("option");
+                op.text = "레벨"+(i+1);//<option>레벨1</option>과 동일
+                op.value = i;//<option value = "1">레벨1</option>과 동일
+
+                sel.appendChild(op);
+            }
+        }
+
+        function createHp(){
+            for(var i=0; i<hpNum; i++){
+                var hp = document.createElement("div");
+                hp.style.width = 60+"px";
+                hp.style.height = 60+"px";
+                hp.style.background = "red";
+                hp.style.border = "2px solid yellow";
+                hp.style.float = "left";
+
+                hpBox.appendChild(hp);
+            }
+        }
+
+        function init(){
+            stage = document.getElementById("stage");
+            txt = document.getElementById("txt");
+            dash = document.querySelector(".dash");
+            sel = document.getElementById("sel");
+            hpBox = document.getElementById("hpBox");
+            scoreBox = document.getElementById("scoreBox");
+            itemBox = document.getElementById("itemBox");
+            txt.focus();
+
+            //addEventListener() 이용하면 두번째의 익명함수의 매개변수로 event 객체가 전달된다.
+            txt.addEventListener("keyup", function(e){
+                if(e.keyCode == 13){
+                    for(var i =0; i<word[level].length; i++){
+                        if(txt.value == word[level][i]){
+                            //arr 엘리먼트 자체를 제거해보자!!!
+                            stage.removeChild(arr[i]); //부모로 부터 삭제
+                            score += 10;
+                            printScore();
+                        }
+                    }
+                    txt.value = "";
+                }
+            });
+        }
+
+        window.addEventListener("load", function(){
+            init();//초기화
+            createWord();//단어 화면에 출력
+            createLevelOption();
+            createHp();
+            printScore();
+            setInterval("move()", 50);
+        });
+    </script>
+</head>
+<body>
+    <div class = "wrapper">
+        <div class = "dash">
+            <button onclick = "startGame()">시작</button>
+            <select id="sel"></select>
+            <input id = "txt" type="text" placeholder="단어입력"/>
+            <div id = "hpBox"></div>
+            <div id = "scoreBox"></div>
+            <div id = "itemBox"></div>
+        </div>
+        <div id = "stage"></div>
+    </div>
+</body>
+</html>

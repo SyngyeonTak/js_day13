@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        #box{
+            width: 100px;
+            height: 100px;
+            background: red;
+            position: absolute;
+            left: 0px;
+            top: 0px;
+
+        }
+    </style>
+    <script>
+        var x = 100;
+        var y = 100;
+        var keyState = {};    
+        var box;
+
+        window.addEventListener('keydown',function(e){
+            keyState[e.keyCode] = true;
+        },true);    
+
+        window.addEventListener('keyup',function(e){
+            keyState[e.keyCode] = false;
+        },true);
+
+
+        function gameLoop() {
+            if (keyState[37]){
+                x -= 1;
+                box.style.left = x+"px";
+            }    
+            if (keyState[38]){
+                y -= 1;
+                box.style.top = y+"px";
+            }    
+            if (keyState[39]){
+                x += 1;
+                box.style.left = x+"px";
+            }   
+            if (keyState[40]){
+                y += 1;
+                box.style.top = y+"px";
+            }   
+        // redraw/reposition your object here
+        // also redraw/animate any objects not controlled by the user
+        // setTimeout(gameLoop, 10);
+        }    
+        
+        
+        function init(){
+            box = document.getElementById("box");
+
+            setInterval("gameLoop()", 1);
+
+        }
+
+        window.addEventListener("load", function(){
+            init();
+        });
+    </script>
+</head>
+<body>
+    <div id = "box"></div>
+</body>
+</html>
